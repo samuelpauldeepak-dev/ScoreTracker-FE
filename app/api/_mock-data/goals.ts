@@ -1,0 +1,48 @@
+import type { Goal } from "@/lib/types"
+
+export const mockGoals: Goal[] = [
+  {
+    id: "1",
+    type: "avgScore",
+    period: "weekly",
+    target: 80,
+    current: 78,
+    status: "active",
+    startDate: "2024-12-09",
+    endDate: "2024-12-15",
+    userId: "1",
+  },
+  {
+    id: "2",
+    type: "studyHours",
+    period: "weekly",
+    target: 35,
+    current: 28,
+    status: "active",
+    startDate: "2024-12-09",
+    endDate: "2024-12-15",
+    userId: "1",
+  },
+  {
+    id: "3",
+    type: "testsCount",
+    period: "monthly",
+    target: 20,
+    current: 10,
+    status: "active",
+    startDate: "2024-12-01",
+    endDate: "2024-12-31",
+    userId: "1",
+  },
+  {
+    id: "4",
+    type: "avgScore",
+    period: "weekly",
+    target: 75,
+    current: 82,
+    status: "achieved",
+    startDate: "2024-12-02",
+    endDate: "2024-12-08",
+    userId: "1",
+  },
+]

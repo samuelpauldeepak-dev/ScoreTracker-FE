@@ -1,0 +1,48 @@
+import type { StudySession } from "@/lib/types"
+
+export const mockStudySessions: StudySession[] = [
+  {
+    id: "1",
+    subjectId: "1",
+    topicId: "1",
+    start: "2024-12-10T14:00:00",
+    end: "2024-12-10T16:00:00",
+    durationMins: 120,
+    notes: "Completed Newton's laws problems",
+    focusType: "deep",
+    userId: "1",
+  },
+  {
+    id: "2",
+    subjectId: "2",
+    topicId: "6",
+    start: "2024-12-09T10:00:00",
+    end: "2024-12-09T12:30:00",
+    durationMins: 150,
+    notes: "Organic reactions revision",
+    focusType: "review",
+    userId: "1",
+  },
+  {
+    id: "3",
+    subjectId: "3",
+    topicId: "10",
+    start: "2024-12-08T15:00:00",
+    end: "2024-12-08T17:00:00",
+    durationMins: 120,
+    notes: "Cell structure diagrams",
+    focusType: "deep",
+    userId: "1",
+  },
+  {
+    id: "4",
+    subjectId: "4",
+    topicId: "15",
+    start: "2024-12-07T09:00:00",
+    end: "2024-12-07T11:00:00",
+    durationMins: 120,
+    notes: "Integration techniques",
+    focusType: "practice",
+    userId: "1",
+  },
+]
