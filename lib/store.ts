@@ -1,34 +1,20 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import type { SubscriptionPlanId } from "./constants"
 
 export interface User {
   id: string
   name: string
   email: string
-  phone?: string
   avatar?: string
-  examType?: string
-  targetScore?: number
   examPreferences: string[]
   joinedDate: string
-  preferences: {
-    theme: "light" | "dark" | "system"
-    notifications: boolean
-    studyReminders: boolean
-    weeklyGoals: boolean
+  subscription: {
+    planId: SubscriptionPlanId
+    status: "active" | "cancelled" | "expired"
+    startDate: string
+    endDate?: string
   }
-}
-
-export interface StudySession {
-  id: string
-  subject: string
-  topics: string[]
-  duration: number // in minutes
-  date: string
-  notes?: string
-  difficulty: "easy" | "medium" | "hard"
-  completedTopics: string[]
-  mood: "excellent" | "good" | "average" | "poor"
 }
 
 export interface Test {
@@ -38,13 +24,10 @@ export interface Test {
   category: "mock" | "practice" | "sectional" | "full"
   score: number
   totalMarks: number
+  percentage: number
   date: string
-  topics: string[]
-  difficulty: "easy" | "medium" | "hard"
-  timeSpent?: number
-  accuracy?: number
-  rank?: number
-  percentile?: number
+  duration?: number
+  topics?: string[]
 }
 
 export interface Subject {
@@ -52,71 +35,38 @@ export interface Subject {
   name: string
   color: string
   icon: string
-  topics: Topic[]
-  totalStudyTime: number
-  lastStudied?: string
-  priority: "high" | "medium" | "low"
+  totalTopics: number
+  completedTopics: number
+  averageScore: number
+  tests: number
 }
 
 export interface Topic {
   id: string
+  subjectId: string
   name: string
-  progress: number
   difficulty: "easy" | "medium" | "hard"
-  testsCount: number
-  studyTime: number
+  progress: number
   lastStudied?: string
-  mastery: "beginner" | "intermediate" | "advanced" | "expert"
 }
 
 export interface CalendarEvent {
   id: string
   title: string
+  type: "test" | "study" | "revision"
   date: string
-  type: "test" | "study" | "reminder"
+  time?: string
+  subject?: string
   description?: string
-  duration?: number
-  completed?: boolean
-  priority: "high" | "medium" | "low"
 }
 
-export interface Achievement {
+export interface Exam {
   id: string
-  title: string
-  description: string
-  icon: string
-  unlockedDate?: string
-  progress: number
-  target: number
-  category: "study" | "test" | "streak" | "milestone"
-  points: number
-}
-
-export interface Goal {
-  id: string
-  title: string
-  description: string
-  targetValue: number
-  currentValue: number
-  unit: string
-  deadline: string
-  status: "active" | "completed" | "paused"
-  createdDate: string
-  category: "daily" | "weekly" | "monthly" | "yearly"
-  priority: "high" | "medium" | "low"
-}
-
-export interface Milestone {
-  id: string
-  title: string
-  description: string
-  icon: string
-  requirement: number
-  currentProgress: number
-  category: "study_hours" | "tests_completed" | "streak_days" | "subjects_mastered"
-  reward: string
-  unlocked: boolean
-  unlockedDate?: string
+  name: string
+  category: "NEET" | "JEE" | "UPSC" | "SSC" | "Other"
+  targetDate?: string
+  description?: string
+  createdAt: string
 }
 
 interface AppState {
@@ -127,338 +77,353 @@ interface AppState {
   // Data
   tests: Test[]
   subjects: Subject[]
+  topics: Topic[]
   calendarEvents: CalendarEvent[]
-  achievements: Achievement[]
-  goals: Goal[]
-  studySessions: StudySession[]
-  milestones: Milestone[]
 
-  // UI State
-  sidebarCollapsed: boolean
-  currentExamType: string
+  // Exam management
+  exams: Exam[]
+  activeExamId: string | null
 
   // Actions
-  login: (email: string, password: string) => Promise<boolean>
+  login: (user: User) => void
   logout: () => void
-  signup: (name: string, email: string, password: string) => Promise<boolean>
-  updateUser: (updates: Partial<User>) => void
-  updateProfile: (updates: Partial<User>) => void
-
-  // Test management
   addTest: (test: Omit<Test, "id">) => void
-  updateTest: (id: string, updates: Partial<Test>) => void
+  updateTest: (id: string, test: Partial<Test>) => void
   deleteTest: (id: string) => void
-
-  // Subject management
   addSubject: (subject: Omit<Subject, "id">) => void
-  updateSubject: (id: string, updates: Partial<Subject>) => void
+  updateSubject: (id: string, subject: Partial<Subject>) => void
   deleteSubject: (id: string) => void
-
-  // Calendar
+  addTopic: (topic: Omit<Topic, "id">) => void
+  updateTopic: (id: string, topic: Partial<Topic>) => void
+  deleteTopic: (id: string) => void
   addCalendarEvent: (event: Omit<CalendarEvent, "id">) => void
-  updateCalendarEvent: (id: string, updates: Partial<CalendarEvent>) => void
+  updateCalendarEvent: (id: string, event: Partial<CalendarEvent>) => void
   deleteCalendarEvent: (id: string) => void
-
-  addGoal: (goal: Omit<Goal, "id">) => void
-  updateGoal: (id: string, updates: Partial<Goal>) => void
-  deleteGoal: (id: string) => void
-
-  addStudySession: (session: Omit<StudySession, "id">) => void
-  updateStudySession: (id: string, updates: Partial<StudySession>) => void
-  deleteStudySession: (id: string) => void
-
-  addMilestone: (milestone: Omit<Milestone, "id">) => void
-  updateMilestone: (id: string, updates: Partial<Milestone>) => void
-  unlockMilestone: (id: string) => void
-
-  switchExamType: (examType: string) => void
-
-  toggleSidebar: () => void
-  setSidebarCollapsed: (collapsed: boolean) => void
-
-  clearAllData: () => void
+  initializeMockData: () => void
+  addExam: (exam: Omit<Exam, "id" | "createdAt">) => void
+  updateExam: (id: string, exam: Partial<Exam>) => void
+  deleteExam: (id: string) => void
+  setActiveExam: (id: string) => void
+  getUsage: () => { exams: number; tests: number; subjects: number }
+  canCreateExam: () => boolean
+  canCreateTest: () => boolean
+  canCreateSubject: () => boolean
 }
 
-export const useStore = create<AppState>()(
+export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       // Initial state
       user: null,
       isAuthenticated: false,
+      exams: [],
+      activeExamId: null,
       tests: [],
       subjects: [],
+      topics: [],
       calendarEvents: [],
-      achievements: [],
-      goals: [],
-      studySessions: [],
-      milestones: [],
-      sidebarCollapsed: false,
-      currentExamType: "NEET",
 
       // Auth actions
-      login: async (email: string, password: string) => {
-        // Mock authentication
-        if (email && password) {
-          const user: User = {
+      login: (user) => set({ user, isAuthenticated: true }),
+      logout: () => set({ user: null, isAuthenticated: false, activeExamId: null }),
+
+      addExam: (exam) =>
+        set((state) => {
+          const newExam = { ...exam, id: crypto.randomUUID(), createdAt: new Date().toISOString() }
+          return {
+            exams: [...state.exams, newExam],
+            activeExamId: state.activeExamId || newExam.id,
+          }
+        }),
+      updateExam: (id, exam) =>
+        set((state) => ({
+          exams: state.exams.map((e) => (e.id === id ? { ...e, ...exam } : e)),
+        })),
+      deleteExam: (id) =>
+        set((state) => ({
+          exams: state.exams.filter((e) => e.id !== id),
+          activeExamId: state.activeExamId === id ? state.exams[0]?.id || null : state.activeExamId,
+        })),
+      setActiveExam: (id) => set({ activeExamId: id }),
+
+      // Test actions
+      addTest: (test) =>
+        set((state) => ({
+          tests: [...state.tests, { ...test, id: crypto.randomUUID() }],
+        })),
+      updateTest: (id, test) =>
+        set((state) => ({
+          tests: state.tests.map((t) => (t.id === id ? { ...t, ...test } : t)),
+        })),
+      deleteTest: (id) =>
+        set((state) => ({
+          tests: state.tests.filter((t) => t.id !== id),
+        })),
+
+      // Subject actions
+      addSubject: (subject) =>
+        set((state) => ({
+          subjects: [...state.subjects, { ...subject, id: crypto.randomUUID() }],
+        })),
+      updateSubject: (id, subject) =>
+        set((state) => ({
+          subjects: state.subjects.map((s) => (s.id === id ? { ...s, ...subject } : s)),
+        })),
+      deleteSubject: (id) =>
+        set((state) => ({
+          subjects: state.subjects.filter((s) => s.id !== id),
+        })),
+
+      // Topic actions
+      addTopic: (topic) =>
+        set((state) => ({
+          topics: [...state.topics, { ...topic, id: crypto.randomUUID() }],
+        })),
+      updateTopic: (id, topic) =>
+        set((state) => ({
+          topics: state.topics.map((t) => (t.id === id ? { ...t, ...topic } : t)),
+        })),
+      deleteTopic: (id) =>
+        set((state) => ({
+          topics: state.topics.filter((t) => t.id !== id),
+        })),
+
+      // Calendar actions
+      addCalendarEvent: (event) =>
+        set((state) => ({
+          calendarEvents: [...state.calendarEvents, { ...event, id: crypto.randomUUID() }],
+        })),
+      updateCalendarEvent: (id, event) =>
+        set((state) => ({
+          calendarEvents: state.calendarEvents.map((e) => (e.id === id ? { ...e, ...event } : e)),
+        })),
+      deleteCalendarEvent: (id) =>
+        set((state) => ({
+          calendarEvents: state.calendarEvents.filter((e) => e.id !== id),
+        })),
+
+      getUsage: () => {
+        const state = get()
+        return {
+          exams: state.exams.length,
+          tests: state.tests.length,
+          subjects: state.subjects.length,
+        }
+      },
+      canCreateExam: () => {
+        const state = get()
+        const plan = state.user?.subscription.planId || "free"
+        const { SUBSCRIPTION_PLANS } = require("./constants")
+        const limit = SUBSCRIPTION_PLANS[plan.toUpperCase()].limits.exams
+        return state.exams.length < limit
+      },
+      canCreateTest: () => {
+        const state = get()
+        const plan = state.user?.subscription.planId || "free"
+        const { SUBSCRIPTION_PLANS } = require("./constants")
+        const limit = SUBSCRIPTION_PLANS[plan.toUpperCase()].limits.tests
+        return state.tests.length < limit
+      },
+      canCreateSubject: () => {
+        const state = get()
+        const plan = state.user?.subscription.planId || "free"
+        const { SUBSCRIPTION_PLANS } = require("./constants")
+        const limit = SUBSCRIPTION_PLANS[plan.toUpperCase()].limits.subjects
+        return state.subjects.length < limit
+      },
+
+      // Initialize mock data
+      initializeMockData: () => {
+        const mockUser: User = {
+          id: "1",
+          name: "Priya Sharma",
+          email: "priya.sharma@email.com",
+          avatar: "/student-avatar.png",
+          examPreferences: ["NEET", "JEE"],
+          joinedDate: "2024-01-15",
+          subscription: {
+            planId: "FREE",
+            status: "active",
+            startDate: "2024-01-15",
+          },
+        }
+
+        const mockExams: Exam[] = [
+          {
             id: "1",
-            name: "Demo Student",
-            email,
-            phone: "+1 (555) 123-4567",
-            avatar: "/student-avatar.png",
-            examType: "NEET",
-            targetScore: 600,
-            examPreferences: ["NEET", "JEE"],
-            joinedDate: new Date().toISOString(),
-            preferences: {
-              theme: "system",
-              notifications: true,
-              studyReminders: true,
-              weeklyGoals: true,
-            },
-          }
-          set({ user, isAuthenticated: true })
+            name: "NEET 2025",
+            category: "NEET",
+            targetDate: "2025-05-05",
+            description: "National Eligibility cum Entrance Test for Medical",
+            createdAt: "2024-01-15",
+          },
+        ]
 
-          const { seedTests, seedSubjects, seedCalendarEvents, seedGoals, seedStudySessions, seedMilestones } =
-            await import("./seed-data")
-          const state = get()
-          if (state.tests.length === 0) {
-            seedTests.forEach((test) => state.addTest(test))
-          }
-          if (state.subjects.length === 0) {
-            seedSubjects.forEach((subject) => state.addSubject(subject))
-          }
-          if (state.calendarEvents.length === 0) {
-            seedCalendarEvents.forEach((event) => state.addCalendarEvent(event))
-          }
-          if (state.goals.length === 0) {
-            seedGoals.forEach((goal) => state.addGoal(goal))
-          }
-          if (state.studySessions.length === 0) {
-            seedStudySessions.forEach((session) => state.addStudySession(session))
-          }
-          if (state.milestones.length === 0) {
-            seedMilestones.forEach((milestone) => state.addMilestone(milestone))
-          }
+        const mockSubjects: Subject[] = [
+          {
+            id: "1",
+            name: "Physics",
+            color: "#3b82f6",
+            icon: "⚛️",
+            totalTopics: 25,
+            completedTopics: 18,
+            averageScore: 78,
+            tests: 12,
+          },
+          {
+            id: "2",
+            name: "Chemistry",
+            color: "#10b981",
+            icon: "🧪",
+            totalTopics: 22,
+            completedTopics: 15,
+            averageScore: 82,
+            tests: 10,
+          },
+          {
+            id: "3",
+            name: "Biology",
+            color: "#f59e0b",
+            icon: "🧬",
+            totalTopics: 28,
+            completedTopics: 20,
+            averageScore: 85,
+            tests: 14,
+          },
+          {
+            id: "4",
+            name: "Mathematics",
+            color: "#ef4444",
+            icon: "📐",
+            totalTopics: 30,
+            completedTopics: 22,
+            averageScore: 75,
+            tests: 15,
+          },
+          {
+            id: "5",
+            name: "History",
+            color: "#8b5cf6",
+            icon: "📚",
+            totalTopics: 20,
+            completedTopics: 12,
+            averageScore: 70,
+            tests: 8,
+          },
+        ]
 
-          return true
-        }
-        return false
-      },
+        const mockTests: Test[] = [
+          {
+            id: "1",
+            name: "NEET Mock Test 1",
+            subject: "Physics",
+            category: "mock",
+            score: 85,
+            totalMarks: 100,
+            percentage: 85,
+            date: "2024-01-20",
+          },
+          {
+            id: "2",
+            name: "JEE Practice Set",
+            subject: "Mathematics",
+            category: "practice",
+            score: 72,
+            totalMarks: 100,
+            percentage: 72,
+            date: "2024-01-18",
+          },
+          {
+            id: "3",
+            name: "Chemistry Full Test",
+            subject: "Chemistry",
+            category: "full",
+            score: 88,
+            totalMarks: 100,
+            percentage: 88,
+            date: "2024-01-15",
+          },
+          {
+            id: "4",
+            name: "Biology Sectional",
+            subject: "Biology",
+            category: "sectional",
+            score: 92,
+            totalMarks: 100,
+            percentage: 92,
+            date: "2024-01-12",
+          },
+          {
+            id: "5",
+            name: "Physics Practice",
+            subject: "Physics",
+            category: "practice",
+            score: 76,
+            totalMarks: 100,
+            percentage: 76,
+            date: "2024-01-10",
+          },
+        ]
 
-      logout: () => {
-        set({ user: null, isAuthenticated: false })
-      },
+        const mockTopics: Topic[] = [
+          { id: "1", subjectId: "1", name: "Mechanics", difficulty: "medium", progress: 85 },
+          { id: "2", subjectId: "1", name: "Thermodynamics", difficulty: "hard", progress: 60 },
+          { id: "3", subjectId: "2", name: "Organic Chemistry", difficulty: "hard", progress: 70 },
+          { id: "4", subjectId: "3", name: "Cell Biology", difficulty: "easy", progress: 95 },
+          { id: "5", subjectId: "4", name: "Calculus", difficulty: "medium", progress: 80 },
+        ]
 
-      signup: async (name: string, email: string, password: string) => {
-        // Mock signup
-        if (name && email && password) {
-          const user: User = {
-            id: Date.now().toString(),
-            name,
-            email,
-            avatar: "/student-avatar.png",
-            examPreferences: [],
-            joinedDate: new Date().toISOString(),
-            preferences: {
-              theme: "system",
-              notifications: true,
-              studyReminders: true,
-              weeklyGoals: true,
-            },
-          }
-          set({ user, isAuthenticated: true })
-          return true
-        }
-        return false
-      },
+        const mockEvents: CalendarEvent[] = [
+          {
+            id: "1",
+            title: "NEET Mock Test 2",
+            type: "test",
+            date: "2024-01-25",
+            time: "10:00",
+            subject: "All Subjects",
+          },
+          {
+            id: "2",
+            title: "Physics Study Session",
+            type: "study",
+            date: "2024-01-24",
+            time: "14:00",
+            subject: "Physics",
+          },
+          {
+            id: "3",
+            title: "Chemistry Revision",
+            type: "revision",
+            date: "2024-01-26",
+            time: "16:00",
+            subject: "Chemistry",
+          },
+        ]
 
-      updateUser: (updates) => {
-        const { user } = get()
-        if (user) {
-          set({ user: { ...user, ...updates } })
-        }
-      },
-
-      updateProfile: (updates) => {
-        const { user } = get()
-        if (user) {
-          set({ user: { ...user, ...updates } })
-        }
-      },
-
-      // Test management
-      addTest: (test) => {
-        const newTest = { ...test, id: Date.now().toString() }
-        set((state) => ({ tests: [...state.tests, newTest] }))
-      },
-
-      updateTest: (id, updates) => {
-        set((state) => ({
-          tests: state.tests.map((test) => (test.id === id ? { ...test, ...updates } : test)),
-        }))
-      },
-
-      deleteTest: (id) => {
-        set((state) => ({
-          tests: state.tests.filter((test) => test.id !== id),
-        }))
-      },
-
-      // Subject management
-      addSubject: (subject) => {
-        const newSubject = {
-          ...subject,
-          id: Date.now().toString(),
-          totalStudyTime: 0,
-          priority: "medium" as const,
-        }
-        set((state) => ({ subjects: [...state.subjects, newSubject] }))
-      },
-
-      updateSubject: (id, updates) => {
-        set((state) => ({
-          subjects: state.subjects.map((subject) => (subject.id === id ? { ...subject, ...updates } : subject)),
-        }))
-      },
-
-      deleteSubject: (id) => {
-        set((state) => ({
-          subjects: state.subjects.filter((subject) => subject.id !== id),
-        }))
-      },
-
-      // Calendar
-      addCalendarEvent: (event) => {
-        const newEvent = {
-          ...event,
-          id: Date.now().toString(),
-          completed: false,
-          priority: "medium" as const,
-        }
-        set((state) => ({ calendarEvents: [...state.calendarEvents, newEvent] }))
-      },
-
-      updateCalendarEvent: (id, updates) => {
-        set((state) => ({
-          calendarEvents: state.calendarEvents.map((event) => (event.id === id ? { ...event, ...updates } : event)),
-        }))
-      },
-
-      deleteCalendarEvent: (id) => {
-        set((state) => ({
-          calendarEvents: state.calendarEvents.filter((event) => event.id !== id),
-        }))
-      },
-
-      addGoal: (goal) => {
-        const newGoal = {
-          ...goal,
-          id: Date.now().toString(),
-          category: "weekly" as const,
-          priority: "medium" as const,
-        }
-        set((state) => ({ goals: [...state.goals, newGoal] }))
-      },
-
-      updateGoal: (id, updates) => {
-        set((state) => ({
-          goals: state.goals.map((goal) => (goal.id === id ? { ...goal, ...updates } : goal)),
-        }))
-      },
-
-      deleteGoal: (id) => {
-        set((state) => ({
-          goals: state.goals.filter((goal) => goal.id !== id),
-        }))
-      },
-
-      addStudySession: (session) => {
-        const newSession = { ...session, id: Date.now().toString() }
-        set((state) => ({ studySessions: [...state.studySessions, newSession] }))
-
-        // Update subject study time
-        const { subjects, updateSubject } = get()
-        const subject = subjects.find((s) => s.name === session.subject)
-        if (subject) {
-          updateSubject(subject.id, {
-            totalStudyTime: subject.totalStudyTime + session.duration,
-            lastStudied: session.date,
-          })
-        }
-      },
-
-      updateStudySession: (id, updates) => {
-        set((state) => ({
-          studySessions: state.studySessions.map((session) =>
-            session.id === id ? { ...session, ...updates } : session,
-          ),
-        }))
-      },
-
-      deleteStudySession: (id) => {
-        set((state) => ({
-          studySessions: state.studySessions.filter((session) => session.id !== id),
-        }))
-      },
-
-      addMilestone: (milestone) => {
-        const newMilestone = {
-          ...milestone,
-          id: Date.now().toString(),
-          unlocked: false,
-        }
-        set((state) => ({ milestones: [...state.milestones, newMilestone] }))
-      },
-
-      updateMilestone: (id, updates) => {
-        set((state) => ({
-          milestones: state.milestones.map((milestone) =>
-            milestone.id === id ? { ...milestone, ...updates } : milestone,
-          ),
-        }))
-      },
-
-      unlockMilestone: (id) => {
-        set((state) => ({
-          milestones: state.milestones.map((milestone) =>
-            milestone.id === id ? { ...milestone, unlocked: true, unlockedDate: new Date().toISOString() } : milestone,
-          ),
-        }))
-      },
-
-      switchExamType: (examType) => {
-        set({ currentExamType: examType })
-        const { user, updateUser } = get()
-        if (user) {
-          updateUser({ examType })
-        }
-      },
-
-      toggleSidebar: () => {
-        set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed }))
-      },
-
-      setSidebarCollapsed: (collapsed) => {
-        set({ sidebarCollapsed: collapsed })
-      },
-
-      // Added data management function for settings
-      clearAllData: () => {
         set({
-          tests: [],
-          subjects: [],
-          calendarEvents: [],
-          achievements: [],
-          goals: [],
-          studySessions: [],
-          milestones: [],
+          user: mockUser,
+          isAuthenticated: true,
+          exams: mockExams,
+          activeExamId: mockExams[0].id,
+          subjects: mockSubjects,
+          tests: mockTests,
+          topics: mockTopics,
+          calendarEvents: mockEvents,
         })
       },
     }),
     {
-      name: "score-tracker-storage",
+      name: "venyto-storage",
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        exams: state.exams,
+        activeExamId: state.activeExamId,
+        tests: state.tests,
+        subjects: state.subjects,
+        topics: state.topics,
+        calendarEvents: state.calendarEvents,
+      }),
     },
   ),
 )
-
-export const useAppStore = useStore
