@@ -31,6 +31,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 
 const menuItems = [
   {
@@ -98,8 +99,8 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-3 px-4 py-3">
+      <SidebarHeader className={cn("border-b border-sidebar-border", isCollapsed && "p-1")}>
+        <div className={cn("flex items-center py-1 ", !isCollapsed && "gap-3 px-3 py-3")}>
           {isCollapsed ? (
             <TooltipProvider>
               <Tooltip>
@@ -109,7 +110,7 @@ export function AppSidebar() {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                  <p className="font-bold">VENYTO</p>
+                  <p className="font-bold">Venyto</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -118,7 +119,7 @@ export function AppSidebar() {
               <div className="p-1.5 bg-primary rounded-xl shrink-0">
                 <GraduationCap className="h-6 w-6 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg">VENYTO</span>
+              <span className="font-bold text-lg">Venyto</span>
             </>
           )}
         </div>

@@ -1,4 +1,4 @@
-// Subscription plan definitions and limits for VENYTO
+// Subscription plan definitions and limits for Venyto
 
 export const SUBSCRIPTION_PLANS = {
   FREE: {

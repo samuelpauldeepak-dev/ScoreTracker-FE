@@ -36,7 +36,7 @@ export function UpgradeDialog({ open, onClose, reason }: UpgradeDialogProps) {
         <DialogHeader className="space-y-3">
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <Crown className="h-6 w-6 text-primary" />
-            Upgrade Your VENYTO Plan
+            Upgrade Your Venyto Plan
           </DialogTitle>
           {reason && <DialogDescription className="text-base">{reason}</DialogDescription>}
         </DialogHeader>

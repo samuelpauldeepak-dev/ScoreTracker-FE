@@ -9,9 +9,9 @@ const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" })
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
 
 export const metadata: Metadata = {
-  title: "VENYTO - Competitive Exam Performance Analytics",
+  title: "Venyto - Competitive Exam Performance Analytics",
   description:
-    "Track your competitive exam performance with VENYTO's comprehensive analytics, test management, and study planning tools.",
+    "Track your competitive exam performance with Venyto's comprehensive analytics, test management, and study planning tools.",
   generator: "v0.app",
 }
 

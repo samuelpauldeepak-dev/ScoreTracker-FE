@@ -53,23 +53,23 @@ export function AuthPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left Panel - Branding & Features */}
-      <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 p-12 text-white relative overflow-hidden">
+      <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-12 px-10 text-white relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:32px_32px]" />
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
 
-        <div className="relative z-10 space-y-12">
+        <div className="relative z-10 space-y-8">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl">
               <GraduationCap className="h-8 w-8" />
             </div>
-            <span className="text-3xl font-bold">ScoreTracker</span>
+            <span className="text-xl md:text-2xl lg:text-3xl font-bold">Venyto</span>
           </div>
 
           {/* Hero Content */}
-          <div className="space-y-6">
+          <div className="space-y-2">
             <h1 className="text-5xl font-bold leading-tight text-balance">Master Your Competitive Exams</h1>
             <p className="text-xl text-blue-100 leading-relaxed text-balance max-w-md">
               Intelligent performance analytics, personalized insights, and goal tracking designed for serious exam
@@ -112,7 +112,7 @@ export function AuthPage() {
         </div>
 
         {/* Testimonial or Stats */}
-        <div className="relative z-10 space-y-4">
+        <div className="relative z-10 space-y-3 mt-4">
           <div className="flex items-center gap-8">
             <div>
               <p className="text-3xl font-bold">15K+</p>
