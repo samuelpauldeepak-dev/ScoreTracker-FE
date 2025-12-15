@@ -1,17 +1,23 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useTheme } from "next-themes"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAppStore } from "@/lib/store"
 import { GraduationCap, TrendingUp, Calendar, BarChart3 } from "lucide-react"
+import { AppleLogo, AppleLogoColor, GoogleLogo, LinkedinLogo } from "@/assets"
+import { cn } from "@/lib/utils"
 
 export function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const { theme, systemTheme } = useTheme()
+  const effectiveTheme = theme === "system" ? systemTheme : theme
+  const isDark = effectiveTheme === "dark";
   const { login } = useAppStore()
   const router = useRouter()
 
@@ -131,14 +137,14 @@ export function AuthPage() {
       </div>
 
       {/* Right Panel - Auth Forms */}
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-background">
+      <div className="flex items-center justify-center pb-6 pt-6 lg:pt-12 lg:pb-0 bg-background">
         <div className="w-full max-w-md space-y-8">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-2 mb-8">
             <div className="p-2 bg-primary rounded-xl">
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold">ScoreTracker</span>
+            <span className="text-2xl font-bold">Venyto</span>
           </div>
 
           {/* Welcome Text */}
@@ -196,6 +202,37 @@ export function AuthPage() {
                 <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
+
+                <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">OR SignIn with</span>
+                </div>
+              </div>
+              <div className="flex gap-8 justify-center">
+              <div className="flex items-center justify-center gap-2">
+                <Button variant="outline" className={cn("rounded-full h-12 w-12  text-base font-semibold", !isDark && "hover:bg-gray-50")}>
+                  <GoogleLogo className="h-8! w-8!"  />
+                 
+                </Button>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+              <Button variant="outline" className={cn("rounded-full h-12 w-12  text-base font-semibold", !isDark && "hover:bg-gray-50")}>
+                  <LinkedinLogo  className="h-8! w-8!" />
+                 
+                </Button>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+              <Button variant="outline" className={cn("rounded-full h-12 w-12  text-base font-semibold", !isDark && "hover:bg-gray-50")}>
+                { isDark ? <AppleLogoColor className="h-7! w-7!"/>: <AppleLogo  className="h-7! w-7!"/>}
+                 
+                </Button>
+              </div>
+            
+              </div>
+            
               </form>
 
               <div className="relative">
@@ -249,10 +286,41 @@ export function AuthPage() {
                 <Button type="submit" className="w-full h-12 text-base font-semibold" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Create Account"}
                 </Button>
+                <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">OR signup with</span>
+                </div>
+              </div>
+              <div className="flex gap-8 justify-center">
+              <div className="flex items-center justify-center gap-2">
+                <Button variant="outline" className={cn("rounded-full h-12 w-12  text-base font-semibold", !isDark && "hover:bg-gray-50")}>
+                  <GoogleLogo className="h-8! w-8!"  />
+                 
+                </Button>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+              <Button variant="outline" className={cn("rounded-full h-12 w-12  text-base font-semibold", !isDark && "hover:bg-gray-50")}>
+                  <LinkedinLogo  className="h-8! w-8!" />
+                 
+                </Button>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+              <Button variant="outline" className={cn("rounded-full h-12 w-12  text-base font-semibold", !isDark && "hover:bg-gray-50")}>
+                { isDark ? <AppleLogoColor className="h-7! w-7!"/>: <AppleLogo  className="h-7! w-7!"/>}
+                 
+                </Button>
+              </div>
+            
+              </div>
 
                 <p className="text-xs text-center text-muted-foreground">
                   By signing up, you agree to our Terms of Service and Privacy Policy
                 </p>
+
+                
               </form>
             </TabsContent>
           </Tabs>
